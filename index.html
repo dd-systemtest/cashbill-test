@@ -1,0 +1,1687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cashbill Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --light: #ecf0f1;
+            --dark: #34495e;
+            --sidebar-width: 250px;
+            --sidebar-collapsed-width: 70px;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            overflow-x: hidden;
+        }
+        
+        .wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        #sidebar {
+            width: var(--sidebar-width);
+            background: var(--secondary);
+            color: white;
+            transition: all 0.3s;
+            position: fixed;
+            height: 100vh;
+            z-index: 999;
+        }
+        
+        #sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+        
+        #sidebar .sidebar-header {
+            padding: 20px;
+            background: var(--dark);
+        }
+        
+        #sidebar ul.components {
+            padding: 20px 0;
+            border-bottom: 1px solid var(--dark);
+        }
+        
+        #sidebar ul li a {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            color: var(--light);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        #sidebar ul li a:hover {
+            background: var(--dark);
+        }
+        
+        #sidebar ul li a i {
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+        
+        #sidebar.collapsed ul li a span {
+            display: none;
+        }
+        
+        #sidebar.collapsed .sidebar-header h3 {
+            display: none;
+        }
+        
+        #sidebar.collapsed .sidebar-header .logo-icon {
+            display: block;
+            font-size: 2rem;
+            text-align: center;
+        }
+        
+        #sidebar.collapsed .user-info {
+            display: none;
+        }
+        
+        #content {
+            width: calc(100% - var(--sidebar-width));
+            margin-left: var(--sidebar-width);
+            transition: all 0.3s;
+            padding: 20px;
+        }
+        
+        #content.expanded {
+            width: calc(100% - var(--sidebar-collapsed-width));
+            margin-left: var(--sidebar-collapsed-width);
+        }
+        
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border: none;
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0,0,0,0.125);
+            font-weight: 600;
+            padding: 15px 20px;
+        }
+        
+        .stat-card {
+            border-left: 4px solid var(--primary);
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-card.sales {
+            border-left-color: var(--success);
+        }
+        
+        .stat-card.requests {
+            border-left-color: var(--warning);
+        }
+        
+        .stat-card.amendments {
+            border-left-color: var(--danger);
+        }
+        
+        .stat-icon {
+            font-size: 2.5rem;
+            opacity: 0.8;
+        }
+        
+        .cashbill-row {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .cashbill-row:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+        
+        .badge-outlet {
+            background-color: var(--secondary);
+            color: white;
+            font-weight: 500;
+        }
+        
+        .modal-header {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+            border-color: var(--success);
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+            border-color: var(--warning);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+            border-color: var(--danger);
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .toggle-btn {
+            background: transparent;
+            border: none;
+            color: var(--secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .toggle-btn:hover {
+            color: var(--primary);
+        }
+        
+        .request-item {
+            border-left: 3px solid var(--warning);
+        }
+        
+        .request-approved {
+            border-left-color: var(--success);
+        }
+        
+        .request-denied {
+            border-left-color: var(--danger);
+        }
+        
+        .access-granted {
+            background-color: rgba(46, 204, 113, 0.1);
+        }
+        
+        .outlet-badge {
+            background-color: var(--secondary);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-left: 5px;
+        }
+        
+        .cashbill-actions {
+            white-space: nowrap;
+        }
+        
+        .cashbill-actions .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .table-responsive {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .filter-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+        
+        .status-draft {
+            background-color: #e0e0e0;
+            color: #555;
+        }
+        
+        .status-submitted {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-approved {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-denied {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        /* Login Styles */
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            background: white;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-header img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            color: white;
+            font-size: 2.5rem;
+        }
+        
+        .login-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #777;
+        }
+        
+        /* Toast notification */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1100;
+        }
+        
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        /* Scanner styles */
+        .scanner-container {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        
+        .scanner-container.active {
+            border-color: var(--success);
+            background-color: rgba(46, 204, 113, 0.1);
+        }
+        
+        .scanner-line {
+            height: 2px;
+            background-color: var(--success);
+            position: relative;
+            margin: 20px 0;
+            animation: scan 2s infinite;
+        }
+        
+        @keyframes scan {
+            0% { top: 0; }
+            50% { top: 100%; }
+            100% { top: 0; }
+        }
+        
+        .scanned-item {
+            background-color: rgba(46, 204, 113, 0.1);
+            border-left: 3px solid var(--success);
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        
+        .scan-input {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        /* Access granted styles */
+        .access-granted {
+            background-color: rgba(46, 204, 113, 0.1);
+        }
+        
+        /* Scanner result styles */
+        .scan-result {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .scan-result.success {
+            background-color: rgba(46, 204, 113, 0.1);
+            border-left: 3px solid var(--success);
+        }
+        
+        .scan-result.error {
+            background-color: rgba(231, 76, 60, 0.1);
+            border-left: 3px solid var(--danger);
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="fade-in">
+        <div class="login-container">
+            <div class="login-header">
+                <div class="user-avatar mx-auto">CD</div>
+                <h3>Cashbill Portal</h3>
+                <p class="text-muted">Sign in to access your account</p>
+            </div>
+            
+            <form id="loginForm">
+                <div class="mb-3">
+                    <label for="userId" class="form-label">User ID</label>
+                    <input type="text" class="form-control" id="userId" placeholder="Enter your user ID" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" placeholder="Enter your password" required>
+                </div>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="rememberMe">
+                    <label class="form-check-label" for="rememberMe">Remember me</label>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Sign In</button>
+                
+                <div class="login-footer">
+                    <p>Need help? <a href="#">Contact IT Support</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="appScreen" style="display: none;">
+        <div class="wrapper">
+            <!-- Sidebar -->
+            <nav id="sidebar">
+                <div class="sidebar-header">
+                    <h3>Cashbill Portal</h3>
+                    <div class="logo-icon"><i class="bi bi-cash-coin"></i></div>
+                </div>
+
+                <ul class="list-unstyled components">
+                    <li>
+                        <a href="#" class="active" id="dashboardLink">
+                            <i class="bi bi-speedometer2"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" id="cashbillLink">
+                            <i class="bi bi-cash-stack"></i>
+                            <span>Cashbills</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="bi bi-building"></i>
+                            <span>Outlets</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="bi bi-people"></i>
+                            <span>Employees</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="bi bi-gear"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="bi bi-question-circle"></i>
+                            <span>Help</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="user-info p-3 text-center">
+                    <div class="user-avatar mx-auto" id="userAvatar">DD</div>
+                    <h6 class="mb-0" id="userName">Danial Danish</h6>
+                    <small class="text-light" id="userRole">0001 - Admin</small>
+                </div>
+            </nav>
+
+            <!-- Page Content -->
+            <div id="content">
+                <nav class="navbar navbar-expand-lg">
+                    <div class="container-fluid">
+                        <button type="button" id="sidebarCollapse" class="toggle-btn">
+                            <i class="bi bi-list"></i>
+                        </button>
+                        <div class="ms-auto d-flex align-items-center">
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <div class="user-avatar" id="userAvatarSmall">DD</div>
+                                    <div>
+                                        <div class="fw-bold" id="userNameSmall">Danial Danish</div>
+                                        <small id="userRoleSmall">0001 - Admin</small>
+                                    </div>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a></li>
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="#" id="logoutBtn"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+
+                <div class="container-fluid">
+                    <!-- Dashboard Section -->
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <h2 class="mb-4">Dashboard <span class="text-muted fs-6">- Welcome back, <span id="welcomeName">Danial</span>!</span></h2>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card stat-card sales">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="text-muted mb-1">Total Sales</h6>
+                                            <h3 class="mb-0">RM 24,568.00</h3>
+                                            <small class="text-success"><i class="bi bi-arrow-up"></i> 12.5% vs last month</small>
+                                        </div>
+                                        <div class="stat-icon text-success">
+                                            <i class="bi bi-currency-dollar"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card stat-card requests">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="text-muted mb-1">Pending Requests</h6>
+                                            <h3 class="mb-0">5</h3>
+                                            <small class="text-warning"><i class="bi bi-clock"></i> 2 urgent</small>
+                                        </div>
+                                        <div class="stat-icon text-warning">
+                                            <i class="bi bi-hourglass-split"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card stat-card amendments">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="text-muted mb-1">Recent Amendments</h6>
+                                            <h3 class="mb-0">3</h3>
+                                            <small class="text-primary"><i class="bi bi-check-circle"></i> All approved</small>
+                                        </div>
+                                        <div class="stat-icon text-danger">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card stat-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="text-muted mb-1">Active Outlets</h6>
+                                            <h3 class="mb-0">12</h3>
+                                            <small class="text-info"><i class="bi bi-shop"></i> 3 new this month</small>
+                                        </div>
+                                        <div class="stat-icon text-primary">
+                                            <i class="bi bi-building"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Sales Overview</h5>
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary active">Monthly</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary">Quarterly</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary">Yearly</button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="salesChart" height="300"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Recent Activity</h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <span class="badge bg-success rounded-pill me-2">New</span>
+                                                Cashbill #1045 created
+                                            </div>
+                                            <small class="text-muted">2 min ago</small>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <span class="badge bg-warning rounded-pill me-2">Req</span>
+                                                Amendment request for #1038
+                                            </div>
+                                            <small class="text-muted">15 min ago</small>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <span class="badge bg-info rounded-pill me-2">App</span>
+                                                Request #45 approved
+                                            </div>
+                                            <small class="text-muted">1 hour ago</small>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <span class="badge bg-danger rounded-pill me-2">Den</span>
+                                                Request #42 denied
+                                            </div>
+                                            <small class="text-muted">3 hours ago</small>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <span class="badge bg-primary rounded-pill me-2">Edt</span>
+                                                Cashbill #1032 updated
+                                            </div>
+                                            <small class="text-muted">5 hours ago</small>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cashbill Management Section -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Cashbill Management</h5>
+                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newCashbillModal">
+                                        <i class="bi bi-plus-circle me-1"></i> New Cashbill
+                                    </button>
+                                </div>
+                                
+                                <div class="filter-section">
+                                    <div class="row">
+                                        <div class="col-md-3 mb-2">
+                                            <select class="form-select form-select-sm" id="outletFilter">
+                                                <option value="all" selected>All Outlets</option>
+                                                <option value="main">Main Outlet</option>
+                                                <option value="downtown">Downtown Branch</option>
+                                                <option value="west">West Side</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <select class="form-select form-select-sm" id="statusFilter">
+                                                <option value="all" selected>All Status</option>
+                                                <option value="draft">Draft</option>
+                                                <option value="submitted">Submitted</option>
+                                                <option value="approved">Approved</option>
+                                                <option value="denied">Denied</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4 mb-2">
+                                            <input type="text" class="form-control form-control-sm" id="searchCashbill" placeholder="Search cashbills...">
+                                        </div>
+                                        <div class="col-md-2 mb-2">
+                                            <button class="btn btn-sm btn-outline-primary w-100" id="applyFilter">Filter</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="cashbillTable">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Outlet</th>
+                                                <th>Date</th>
+                                                <th>Amount</th>
+                                                <th>Status</th>
+                                                <th>Created By</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="cashbill-row">
+                                                <td>#1045</td>
+                                                <td>Main Outlet <span class="outlet-badge">HQ</span></td>
+                                                <td>Oct 15, 2023</td>
+                                                <td>RM 1,245.00</td>
+                                                <td><span class="status-badge status-draft">Draft</span></td>
+                                                <td>Sarah Johnson</td>
+                                                <td class="cashbill-actions">
+                                                    <button class="btn btn-sm btn-outline-primary me-1 view-cashbill" data-id="1045"><i class="bi bi-eye"></i></button>
+                                                    <button class="btn btn-sm btn-outline-success me-1 edit-cashbill" data-id="1045"><i class="bi bi-pencil"></i></button>
+                                                    <button class="btn btn-sm btn-outline-danger delete-cashbill" data-id="1045"><i class="bi bi-trash"></i></button>
+                                                </td>
+                                            </tr>
+                                            <tr class="cashbill-row">
+                                                <td>#1044</td>
+                                                <td>Downtown Branch <span class="outlet-badge">DT</span></td>
+                                                <td>Oct 14, 2023</td>
+                                                <td>RM 2,340.00</td>
+                                                <td><span class="status-badge status-submitted">Submitted</span></td>
+                                                <td>Mike Chen</td>
+                                                <td class="cashbill-actions">
+                                                    <button class="btn btn-sm btn-outline-primary me-1 view-cashbill" data-id="1044"><i class="bi bi-eye"></i></button>
+                                                    <button class="btn btn-sm btn-outline-success me-1 edit-cashbill" data-id="1044"><i class="bi bi-pencil"></i></button>
+                                                    <button class="btn btn-sm btn-outline-danger delete-cashbill" data-id="1044"><i class="bi bi-trash"></i></button>
+                                                </td>
+                                            </tr>
+                                            <tr class="cashbill-row">
+                                                <td>#1043</td>
+                                                <td>West Side <span class="outlet-badge">WS</span></td>
+                                                <td>Oct 14, 2023</td>
+                                                <td>RM 1,875.50</td>
+                                                <td><span class="status-badge status-approved">Approved</span></td>
+                                                <td>Jessica Lee</td>
+                                                <td class="cashbill-actions">
+                                                    <button class="btn btn-sm btn-outline-primary me-1 view-cashbill" data-id="1043"><i class="bi bi-eye"></i></button>
+                                                    <button class="btn btn-sm btn-outline-success me-1 edit-cashbill" data-id="1043"><i class="bi bi-pencil"></i></button>
+                                                    <button class="btn btn-sm btn-outline-danger delete-cashbill" data-id="1043"><i class="bi bi-trash"></i></button>
+                                                </td>
+                                            </tr>
+                                            <tr class="cashbill-row">
+                                                <td>#1042</td>
+                                                <td>Main Outlet <span class="outlet-badge">HQ</span></td>
+                                                <td>Oct 13, 2023</td>
+                                                <td>RM 3,120.75</td>
+                                                <td><span class="status-badge status-denied">Denied</span></td>
+                                                <td>Robert Kim</td>
+                                                <td class="cashbill-actions">
+                                                    <button class="btn btn-sm btn-outline-primary me-1 view-cashbill" data-id="1042"><i class="bi bi-eye"></i></button>
+                                                    <button class="btn btn-sm btn-outline-success me-1 edit-cashbill" data-id="1042"><i class="bi bi-pencil"></i></button>
+                                                    <button class="btn btn-sm btn-outline-danger delete-cashbill" data-id="1042"><i class="bi bi-trash"></i></button>
+                                                </td>
+                                            </tr>
+                                            <tr class="cashbill-row">
+                                                <td>#1041</td>
+                                                <td>Downtown Branch <span class="outlet-badge">DT</span></td>
+                                                <td>Oct 12, 2023</td>
+                                                <td>RM 2,780.00</td>
+                                                <td><span class="status-badge status-submitted">Submitted</span></td>
+                                                <td>Emily Davis</td>
+                                                <td class="cashbill-actions">
+                                                    <button class="btn btn-sm btn-outline-primary me-1 view-cashbill" data-id="1041"><i class="bi bi-eye"></i></button>
+                                                    <button class="btn btn-sm btn-outline-success me-1 edit-cashbill" data-id="1041"><i class="bi bi-pencil"></i></button>
+                                                    <button class="btn btn-sm btn-outline-danger delete-cashbill" data-id="1041"><i class="bi bi-trash"></i></button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <div class="card-footer">
+                                    <nav aria-label="Page navigation">
+                                        <ul class="pagination justify-content-center mb-0">
+                                            <li class="page-item disabled">
+                                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                                            </li>
+                                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                            <li class="page-item">
+                                                <a class="page-link" href="#">Next</a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Cashbill Modal -->
+    <div class="modal fade" id="viewCashbillModal" tabindex="-1" aria-labelledby="viewCashbillModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewCashbillModalLabel">Cashbill #1044</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6>Outlet Information</h6>
+                            <p class="mb-1"><strong>Outlet:</strong> Downtown Branch</p>
+                            <p class="mb-1"><strong>Location:</strong> 123 Main St, Downtown</p>
+                            <p class="mb-1"><strong>Manager:</strong> Mike Chen</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Cashbill Details</h6>
+                            <p class="mb-1"><strong>Date:</strong> Oct 14, 2023</p>
+                            <p class="mb-1"><strong>Amount:</strong> RM 2,340.00</p>
+                            <p class="mb-1"><strong>Status:</strong> <span class="status-badge status-submitted">Submitted</span></p>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <h6>Items</h6>
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Quantity</th>
+                                        <th>Unit Price</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Product A</td>
+                                        <td>5</td>
+                                        <td>RM 25.00</td>
+                                        <td>RM 125.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Product B</td>
+                                        <td>3</td>
+                                        <td>RM 45.50</td>
+                                        <td>RM 136.50</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Product C</td>
+                                        <td>8</td>
+                                        <td>RM 18.75</td>
+                                        <td>RM 150.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Product D</td>
+                                        <td>12</td>
+                                        <td>RM 10.00</td>
+                                        <td>RM 120.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Product E</td>
+                                        <td>6</td>
+                                        <td>RM 30.25</td>
+                                        <td>RM 181.50</td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3" class="text-end"><strong>Subtotal:</strong></td>
+                                        <td>RM 713.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="text-end"><strong>Tax (10%):</strong></td>
+                                        <td>RM 71.30</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                                        <td>RM 784.30</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <h6>Notes</h6>
+                            <p>Customer requested additional items after initial transaction. Added to the same cashbill.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6>Amendment Requests</h6>
+                            <div class="list-group">
+                                <div class="list-group-item request-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Request #45</h6>
+                                        <small>15 min ago</small>
+                                    </div>
+                                    <p class="mb-1">Need to add missing items from customer order #5678</p>
+                                    <div class="d-flex justify-content-end">
+                                        <button class="btn btn-sm btn-success me-2 approve-request" data-id="45">Approve</button>
+                                        <button class="btn btn-sm btn-danger deny-request" data-id="45">Deny</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary edit-cashbill-btn" data-id="1044">Edit Cashbill</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Cashbill Modal -->
+    <div class="modal fade" id="newCashbillModal" tabindex="-1" aria-labelledby="newCashbillModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="newCashbillModalLabel">Create New Cashbill</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="newCashbillForm">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="outlet" class="form-label">Outlet</label>
+                                <select class="form-select" id="outlet" required>
+                                    <option value="" selected disabled>Select Outlet</option>
+                                    <option value="1">Main Outlet (HQ)</option>
+                                    <option value="2">Downtown Branch (DT)</option>
+                                    <option value="3">West Side (WS)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="date" class="form-label">Date</label>
+                                <input type="date" class="form-control" id="date" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="amount" class="form-label">Total Amount</label>
+                            <div class="input-group">
+                                <span class="input-group-text">RM</span>
+                                <input type="number" class="form-control" id="amount" step="0.01" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Items</label>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Item</th>
+                                            <th>Quantity</th>
+                                            <th>Unit Price</th>
+                                            <th>Total</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="itemsTableBody">
+                                        <tr>
+                                            <td><input type="text" class="form-control form-control-sm" placeholder="Item name"></td>
+                                            <td><input type="number" class="form-control form-control-sm" placeholder="Qty" min="1"></td>
+                                            <td><input type="number" class="form-control form-control-sm" placeholder="Price" step="0.01" min="0"></td>
+                                            <td><input type="number" class="form-control form-control-sm" placeholder="0.00" readonly></td>
+                                            <td><button type="button" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="3" class="text-end"><strong>Subtotal:</strong></td>
+                                            <td><input type="number" class="form-control form-control-sm" placeholder="0.00" readonly></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3" class="text-end"><strong>Tax (10%):</strong></td>
+                                            <td><input type="number" class="form-control form-control-sm" placeholder="0.00" readonly></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                                            <td><input type="number" class="form-control form-control-sm" placeholder="0.00" readonly></td>
+                                            <td></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="addItemBtn">
+                                <i class="bi bi-plus-circle me-1"></i> Add Item
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="createCashbillBtn">Create Cashbill</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scanner Modal -->
+    <div class="modal fade" id="scannerModal" tabindex="-1" aria-labelledby="scannerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="scannerModalLabel">Scan Items</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="scanner-container" id="scannerContainer">
+                        <h5>Scan Item Barcode</h5>
+                        <p>Position barcode inside scanner area</p>
+                        <div class="scanner-line"></div>
+                        <button class="btn btn-primary mt-3" id="startScanBtn">
+                            <i class="bi bi-camera me-2"></i> Start Scanning
+                        </button>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h6>Scanned Items</h6>
+                        <div id="scannedItems" class="mt-3">
+                            <!-- Scanned items will appear here -->
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div>
+                                <h5 class="mb-0">Total: <span id="scannerTotal">RM 0.00</span></h5>
+                            </div>
+                            <div>
+                                <button class="btn btn-success" id="commitScanBtn" disabled>
+                                    <i class="bi bi-check-circle me-1"></i> Commit & Send Email
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Access Grant Modal -->
+    <div class="modal fade" id="grantAccessModal" tabindex="-1" aria-labelledby="grantAccessModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="grantAccessModalLabel">Grant Access to Employee</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>You are about to grant access to cashbill #1044 to an employee. This will allow them to edit this cashbill until the access expires.</p>
+                    
+                    <div class="mb-3">
+                        <label for="employee" class="form-label">Select Employee</label>
+                        <select class="form-select" id="employee">
+                            <option value="" selected disabled>Select Employee</option>
+                            <option value="2">Sarah Johnson (Main Outlet)</option>
+                            <option value="3">Mike Chen (Downtown Branch)</option>
+                            <option value="4">Jessica Lee (West Side)</option>
+                            <option value="5">Robert Kim (Main Outlet)</option>
+                            <option value="6">Emily Davis (Downtown Branch)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="expiryDate" class="form-label">Access Expiry Date</label>
+                        <input type="date" class="form-control" id="expiryDate">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes (Optional)</label>
+                        <textarea class="form-control" id="notes" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" id="grantAccessBtn">Grant Access</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast notifications -->
+    <div class="toast-container">
+        <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" id="notificationToast">
+            <div class="toast-header">
+                <strong class="me-auto" id="toastTitle">Notification</strong>
+                <small id="toastTime">Just now</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="toastMessage">
+                Action completed successfully!
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // User data
+        const users = [
+            { id: "0001", name: "Danial Danish", role: "Head of IT", avatar: "DD", password: "admin123" },
+            { id: "0002", name: "Sarah Johnson", role: "Cashier", avatar: "SJ", password: "user123" },
+            { id: "0003", name: "Mike Chen", role: "Manager", avatar: "MC", password: "user123" },
+            { id: "0004", name: "Jessica Lee", role: "Cashier", avatar: "JL", password: "user123" },
+            { id: "0005", name: "Robert Kim", role: "Crew", avatar: "RK", password: "user123" },
+            { id: "0006", name: "Emily Davis", role: "Crew", avatar: "ED", password: "user123" }
+        ];
+
+        // Sample items database for scanner
+        const itemsDatabase = [
+            { barcode: "1001", name: "Product A", price: 25.00 },
+            { barcode: "1002", name: "Product B", price: 45.50 },
+            { barcode: "1003", name: "Product C", price: 18.75 },
+            { barcode: "1004", name: "Product D", price: 10.00 },
+            { barcode: "1005", name: "Product E", price: 30.25 }
+        ];
+
+        // Initialize toasts
+        const toastEl = document.getElementById('notificationToast');
+        const toast = new bootstrap.Toast(toastEl);
+        
+        // Show notification
+        function showNotification(title, message) {
+            document.getElementById('toastTitle').textContent = title;
+            document.getElementById('toastMessage').textContent = message;
+            document.getElementById('toastTime').textContent = 'Just now';
+            toast.show();
+        }
+
+        // Login functionality
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const userId = document.getElementById('userId').value;
+            const password = document.getElementById('password').value;
+            
+            const user = users.find(u => u.id === userId);
+            
+            if (user && user.password === password) {
+                // Successful login
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('appScreen').style.display = 'block';
+                
+                // Update user info
+                document.getElementById('userName').textContent = user.name;
+                document.getElementById('userRole').textContent = user.id + ' - ' + user.role;
+                document.getElementById('userNameSmall').textContent = user.name;
+                document.getElementById('userRoleSmall').textContent = user.id + ' - ' + user.role;
+                document.getElementById('userAvatar').textContent = user.avatar;
+                document.getElementById('userAvatarSmall').textContent = user.avatar;
+                document.getElementById('welcomeName').textContent = user.name.split(' ')[0];
+                
+                showNotification('Welcome', `Welcome back, ${user.name}!`);
+            } else {
+                // Failed login
+                showNotification('Login Failed', 'Invalid user ID or password. Please try again.');
+            }
+        });
+
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            document.getElementById('loginScreen').style.display = 'block';
+            document.getElementById('appScreen').style.display = 'none';
+            document.getElementById('loginForm').reset();
+        });
+
+        // Toggle sidebar
+        document.getElementById('sidebarCollapse').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+            document.getElementById('content').classList.toggle('expanded');
+        });
+
+        // Initialize sales chart
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        const salesChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Sales (RM)',
+                    data: [12500, 15000, 18000, 16500, 21000, 22500, 24000, 25500, 23000, 24568, 0, 0],
+                    backgroundColor: 'rgba(52, 152, 219, 0.5)',
+                    borderColor: 'rgba(52, 152, 219, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'RM ' + value.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'RM ' + context.raw.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Sidebar navigation functionality
+        document.getElementById('dashboardLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            showNotification('Dashboard', 'Dashboard view loaded');
+        });
+
+        document.getElementById('cashbillLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            showNotification('Cashbills', 'Cashbill management view loaded');
+        });
+
+        // Cashbill table functionality
+        document.querySelectorAll('.view-cashbill').forEach(button => {
+            button.addEventListener('click', function() {
+                const cashbillId = this.getAttribute('data-id');
+                const modal = new bootstrap.Modal(document.getElementById('viewCashbillModal'));
+                modal.show();
+            });
+        });
+
+        document.querySelectorAll('.edit-cashbill').forEach(button => {
+            button.addEventListener('click', function() {
+                const cashbillId = this.getAttribute('data-id');
+                const user = users.find(u => u.id === '0001'); // Only admin can edit
+                
+                if (user) {
+                    showNotification('Edit Cashbill', `Editing cashbill #${cashbillId}`);
+                    // In a real app, you would open the edit form here
+                } else {
+                    showNotification('Access Denied', 'You do not have permission to edit this cashbill.');
+                }
+            });
+        });
+
+        document.querySelectorAll('.delete-cashbill').forEach(button => {
+            button.addEventListener('click', function() {
+                const cashbillId = this.getAttribute('data-id');
+                const user = users.find(u => u.id === '0001'); // Only admin can delete
+                
+                if (user) {
+                    if (confirm(`Are you sure you want to delete cashbill #${cashbillId}?`)) {
+                        // In a real app, you would delete the cashbill here
+                        showNotification('Deleted', `Cashbill #${cashbillId} has been deleted.`);
+                    }
+                } else {
+                    showNotification('Access Denied', 'You do not have permission to delete this cashbill.');
+                }
+            });
+        });
+
+        // Request approval/denial
+        document.querySelectorAll('.approve-request').forEach(button => {
+            button.addEventListener('click', function() {
+                const requestId = this.getAttribute('data-id');
+                showNotification('Request Approved', `Request #${requestId} has been approved.`);
+                
+                // In a real app, you would update the request status here
+                this.parentElement.parentElement.remove();
+            });
+        });
+
+        document.querySelectorAll('.deny-request').forEach(button => {
+            button.addEventListener('click', function() {
+                const requestId = this.getAttribute('data-id');
+                showNotification('Request Denied', `Request #${requestId} has been denied.`);
+                
+                // In a real app, you would update the request status here
+                this.parentElement.parentElement.remove();
+            });
+        });
+
+        // New cashbill functionality
+        document.getElementById('addItemBtn').addEventListener('click', function() {
+            const itemsTableBody = document.getElementById('itemsTableBody');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td><input type="text" class="form-control form-control-sm" placeholder="Item name"></td>
+                <td><input type="number" class="form-control form-control-sm" placeholder="Qty" min="1"></td>
+                <td><input type="number" class="form-control form-control-sm" placeholder="Price" step="0.01" min="0"></td>
+                <td><input type="number" class="form-control form-control-sm" placeholder="0.00" readonly></td>
+                <td><button type="button" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></td>
+            `;
+            itemsTableBody.appendChild(newRow);
+            
+            // Add event listener to delete button
+            newRow.querySelector('button').addEventListener('click', function() {
+                newRow.remove();
+            });
+        });
+
+        document.getElementById('createCashbillBtn').addEventListener('click', function() {
+            const user = users.find(u => u.id === '0001'); // Only admin can create
+            
+            if (user) {
+                // In a real app, you would save the cashbill here
+                showNotification('Success', 'New cashbill created successfully!');
+                document.getElementById('newCashbillForm').reset();
+                
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('newCashbillModal'));
+                modal.hide();
+            } else {
+                showNotification('Access Denied', 'You do not have permission to create cashbills.');
+            }
+        });
+
+        // Grant access functionality
+        document.getElementById('grantAccessBtn').addEventListener('click', function() {
+            const user = users.find(u => u.id === '0001'); // Only admin can grant access
+            
+            if (user) {
+                const employee = document.getElementById('employee').value;
+                const expiryDate = document.getElementById('expiryDate').value;
+                
+                if (!employee || !expiryDate) {
+                    showNotification('Error', 'Please fill in all required fields.');
+                    return;
+                }
+                
+                // In a real app, you would save the access grant here
+                showNotification('Access Granted', `Access granted to employee until ${expiryDate}.`);
+                
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('grantAccessModal'));
+                modal.hide();
+            } else {
+                showNotification('Access Denied', 'You do not have permission to grant access.');
+            }
+        });
+
+        // Filter functionality
+        document.getElementById('applyFilter').addEventListener('click', function() {
+            const outlet = document.getElementById('outletFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            const search = document.getElementById('searchCashbill').value.toLowerCase();
+            
+            // In a real app, you would filter the data here
+            showNotification('Filter Applied', `Showing ${outlet} ${status} cashbills with "${search}".`);
+        });
+
+        // Scanner functionality
+        let scannerActive = false;
+        let scannedItems = [];
+        let scannerTotal = 0;
+
+        document.getElementById('startScanBtn').addEventListener('click', function() {
+            const scannerContainer = document.getElementById('scannerContainer');
+            scannerContainer.classList.add('active');
+            this.disabled = true;
+            this.innerHTML = '<i class="bi bi-camera-fill me-2"></i> Scanning...';
+            scannerActive = true;
+            
+            // Simulate scanning
+            setTimeout(() => {
+                simulateBarcodeScan();
+            }, 2000);
+        });
+
+        function simulateBarcodeScan() {
+            if (!scannerActive) return;
+            
+            // Simulate scanning a random barcode
+            const randomIndex = Math.floor(Math.random() * itemsDatabase.length);
+            const item = itemsDatabase[randomIndex];
+            
+            // Add to scanned items
+            addScannedItem(item);
+            
+            // Continue scanning
+            setTimeout(() => {
+                simulateBarcodeScan();
+            }, 3000);
+        }
+
+        function addScannedItem(item) {
+            // Check if item already exists
+            const existingItem = scannedItems.find(i => i.barcode === item.barcode);
+            
+            if (existingItem) {
+                // Increment quantity
+                existingItem.quantity++;
+                existingItem.total = existingItem.quantity * existingItem.price;
+            } else {
+                // Add new item
+                scannedItems.push({
+                    barcode: item.barcode,
+                    name: item.name,
+                    price: item.price,
+                    quantity: 1,
+                    total: item.price
+                });
+            }
+            
+            // Update UI
+            updateScannedItemsUI();
+            updateScannerTotal();
+        }
+
+        function updateScannedItemsUI() {
+            const scannedItemsContainer = document.getElementById('scannedItems');
+            scannedItemsContainer.innerHTML = '';
+            
+            scannedItems.forEach((item, index) => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'scanned-item';
+                itemElement.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>${item.name}</strong>
+                            <div class="text-muted small">RM ${item.price.toFixed(2)} × ${item.quantity}</div>
+                        </div>
+                        <div>
+                            <span class="me-2">RM ${item.total.toFixed(2)}</span>
+                            <button class="btn btn-sm btn-outline-danger remove-item" data-index="${index}">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                scannedItemsContainer.appendChild(itemElement);
+                
+                // Add event listener to remove button
+                itemElement.querySelector('.remove-item').addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    scannedItems.splice(index, 1);
+                    updateScannedItemsUI();
+                    updateScannerTotal();
+                });
+            });
+        }
+
+        function updateScannerTotal() {
+            scannerTotal = scannedItems.reduce((total, item) => total + item.total, 0);
+            document.getElementById('scannerTotal').textContent = `RM ${scannerTotal.toFixed(2)}`;
+            
+            // Enable/disable commit button
+            document.getElementById('commitScanBtn').disabled = scannerItems.length === 0;
+        }
+
+        document.getElementById('commitScanBtn').addEventListener('click', function() {
+            if (scannerItems.length === 0) return;
+            
+            // In a real app, you would save the cashbill here
+            showNotification('Success', 'Cashbill committed successfully and email sent!');
+            
+            // Reset scanner
+            scannerActive = false;
+            scannedItems = [];
+            scannerTotal = 0;
+            
+            const scannerContainer = document.getElementById('scannerContainer');
+            scannerContainer.classList.remove('active');
+            document.getElementById('startScanBtn').disabled = false;
+            document.getElementById('startScanBtn').innerHTML = '<i class="bi bi-camera me-2"></i> Start Scanning';
+            
+            // Clear UI
+            document.getElementById('scannedItems').innerHTML = '';
+            document.getElementById('scannerTotal').textContent = 'RM 0.00';
+            this.disabled = true;
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('scannerModal'));
+            modal.hide();
+        });
+
+        // Add event listeners to remove item buttons
+        document.querySelectorAll('.remove-item').forEach(button => {
+            button.addEventListener('click', function() {
+                const index = parseInt(this.getAttribute('data-index'));
+                scannedItems.splice(index, 1);
+                updateScannedItemsUI();
+                updateScannerTotal();
+            });
+        });
+
+        // Add event listener to scanner input for manual barcode entry
+        document.getElementById('scannerContainer').addEventListener('click', function(e) {
+            if (e.target.closest('.scanned-item') || e.target.closest('button')) return;
+            
+            const barcode = prompt('Enter barcode manually:');
+            if (barcode) {
+                const item = itemsDatabase.find(i => i.barcode === barcode);
+                if (item) {
+                    addScannedItem(item);
+                } else {
+                    showNotification('Error', 'Item not found in database.');
+                }
+            }
+        });
+
+        // View cashbill button functionality
+        document.querySelectorAll('.view-cashbill').forEach(button => {
+            button.addEventListener('click', function() {
+                const cashbillId = this.getAttribute('data-id');
+                const modal = new bootstrap.Modal(document.getElementById('viewCashbillModal'));
+                modal.show();
+            });
+        });
+
+        // Edit cashbill button functionality
+        document.querySelectorAll('.edit-cashbill').forEach(button => {
+            button.addEventListener('click', function() {
+                const cashbillId = this.getAttribute('data-id');
+                const user = users.find(u => u.id === '0001'); // Only admin can edit
+                
+                if (user) {
+                    showNotification('Edit Cashbill', `Editing cashbill #${cashbillId}`);
+                    // In a real app, you would open the edit form here
+                } else {
+                    showNotification('Access Denied', 'You do not have permission to edit this cashbill.');
+                }
+            });
+        });
+
+        // Delete cashbill button functionality
+        document.querySelectorAll('.delete-cashbill').forEach(button => {
+            button.addEventListener('click', function() {
+                const cashbillId = this.getAttribute('data-id');
+                const user = users.find(u => u.id === '0001'); // Only admin can delete
+                
+                if (user) {
+                    if (confirm(`Are you sure you want to delete cashbill #${cashbillId}?`)) {
+                        // In a real app, you would delete the cashbill here
+                        showNotification('Deleted', `Cashbill #${cashbillId} has been deleted.`);
+                    }
+                } else {
+                    showNotification('Access Denied', 'You do not have permission to delete this cashbill.');
+                }
+            });
+        });
+
+        // Request approval/denial functionality
+        document.querySelectorAll('.approve-request').forEach(button => {
+            button.addEventListener('click', function() {
+                const requestId = this.getAttribute('data-id');
+                showNotification('Request Approved', `Request #${requestId} has been approved.`);
+                
+                // In a real app, you would update the request status here
+                this.parentElement.parentElement.remove();
+            });
+        });
+
+        document.querySelectorAll('.deny-request').forEach(button => {
+            button.addEventListener('click', function() {
+                const requestId = this.getAttribute('data-id');
+                showNotification('Request Denied', `Request #${requestId} has been denied.`);
+                
+                // In a real app, you would update the request status here
+                this.parentElement.parentElement.remove();
+            });
+        });
+
+        // New cashbill functionality
+        document.getElementById('addItemBtn').addEventListener('click', function() {
+            const itemsTableBody = document.getElementById('itemsTableBody');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td><input type="text" class="form-control form-control-sm" placeholder="Item name"></td>
+                <td><input type="number" class="form-control form-control-sm" placeholder="Qty" min="1"></td>
+                <td><input type="number" class="form-control form-control-sm" placeholder="Price" step="0.01" min="0"></td>
+                <td><input type="number" class="form-control form-control-sm" placeholder="0.00" readonly></td>
+                <td><button type="button" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></td>
+            `;
+            itemsTableBody.appendChild(newRow);
+            
+            // Add event listener to delete button
+            newRow.querySelector('button').addEventListener('click', function() {
+                newRow.remove();
+            });
+        });
+
+        document.getElementById('createCashbillBtn').addEventListener('click', function() {
+            const user = users.find(u => u.id === '0001'); // Only admin can create
+            
+            if (user) {
+                // In a real app, you would save the cashbill here
+                showNotification('Success', 'New cashbill created successfully!');
+                document.getElementById('newCashbillForm').reset();
+                
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('newCashbillModal'));
+                modal.hide();
+            } else {
+                showNotification('Access Denied', 'You do not have permission to create cashbills.');
+            }
+        });
+
+        // Grant access functionality
+        document.getElementById('grantAccessBtn').addEventListener('click', function() {
+            const user = users.find(u => u.id === '0001'); // Only admin can grant access
+            
+            if (user) {
+                const employee = document.getElementById('employee').value;
+                const expiryDate = document.getElementById('expiryDate').value;
+                
+                if (!employee || !expiryDate) {
+                    showNotification('Error', 'Please fill in all required fields.');
+                    return;
+                }
+                
+                // In a real app, you would save the access grant here
+                showNotification('Access Granted', `Access granted to employee until ${expiryDate}.`);
+                
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('grantAccessModal'));
+                modal.hide();
+            } else {
+                showNotification('Access Denied', 'You do not have permission to grant access.');
+            }
+        });
+
+        // Filter functionality
+        document.getElementById('applyFilter').addEventListener('click', function() {
+            const outlet = document.getElementById('outletFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            const search = document.getElementById('searchCashbill').value.toLowerCase();
+            
+            // In a real app, you would filter the data here
+            showNotification('Filter Applied', `Showing ${outlet} ${status} cashbills with "${search}".`);
+        });
+
+        // Scanner functionality for crew members
+        document.querySelectorAll('.scannable-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const barcode = this.getAttribute('data-barcode');
+                const item = itemsDatabase.find(i => i.barcode === barcode);
+                
+                if (item) {
+                    addScannedItem(item);
+                }
+            });
+        });
+
+        // Initialize the scanner modal
+        document.getElementById('scannerModal').addEventListener('shown.bs.modal', function() {
+            // Reset scanner state
+            scannerActive = false;
+            scannedItems = [];
+            scannerTotal = 0;
+            
+            const scannerContainer = document.getElementById('scannerContainer');
+            scannerContainer.classList.remove('active');
+            document.getElementById('startScanBtn').disabled = false;
+            document.getElementById('startScanBtn').innerHTML = '<i class="bi bi-camera me-2"></i> Start Scanning';
+            document.getElementById('scannedItems').innerHTML = '';
+            document.getElementById('scannerTotal').textContent = 'RM 0.00';
+            document.getElementById('commitScanBtn').disabled = true;
+        });
+    </script>
+</body>
+</html>
