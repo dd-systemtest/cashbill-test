@@ -1470,11 +1470,11 @@
             document.getElementById('scannerTotal').textContent = `RM ${scannerTotal.toFixed(2)}`;
             
             // Enable/disable commit button
-            document.getElementById('commitScanBtn').disabled = scannerItems.length === 0;
+            document.getElementById('commitScanBtn').disabled = scannedItems.length === 0;
         }
 
         document.getElementById('commitScanBtn').addEventListener('click', function() {
-            if (scannerItems.length === 0) return;
+            if (scannedItems.length === 0) return;
             
             // In a real app, you would save the cashbill here
             showNotification('Success', 'Cashbill committed successfully and email sent!');
