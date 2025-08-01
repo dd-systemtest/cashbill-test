@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Switch Village Mall - Courier Logbook System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --light-bg: #f8f9fa;
+            --border-color: #dee2e6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Login Page Styles */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--light-bg);
+            padding: 20px;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .login-subtitle {
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control {
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 15px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        .login-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 500;
+            width: 100%;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .login-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        /* Logbook Page Styles */
+        .logbook-container {
+            display: none;
+            min-height: 100vh;
+            background-color: var(--light-bg);
+        }
+
+        .logbook-header {
+            background: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .logbook-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .back-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background-color: var(--primary-color);
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .form-card h3 {
+            color: var(--primary-color);
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+        }
+
+        .row {
+            margin-bottom: 20px;
+        }
+
+        .form-select {
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-size: 0.95rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-select:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        .add-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .add-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .entries-table {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .table-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px 30px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .table-responsive {
+            padding: 20px;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table th {
+            background-color: var(--light-bg);
+            color: var(--primary-color);
+            font-weight: 600;
+            border: none;
+            padding: 15px 10px;
+        }
+
+        .table td {
+            padding: 15px 10px;
+            border-top: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .no-entries {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            padding: 40px;
+        }
+
+        .action-btn {
+            padding: 5px 10px;
+            margin: 0 2px;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .delete-btn {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .login-card {
+                padding: 30px 20px;
+                margin: 20px;
+            }
+
+            .logbook-header {
+                padding: 15px 0;
+            }
+
+            .form-card {
+                padding: 20px;
+                margin: 0 15px 20px;
+            }
+
+            .entries-table {
+                margin: 0 15px;
+            }
+
+            .table-responsive {
+                padding: 15px;
+            }
+
+            .table th,
+            .table td {
+                padding: 10px 5px;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Status badge styles */
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-picked {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-delivered {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <div class="login-card">
+            <h1 class="login-title">Switch Village Mall</h1>
+            <h2 class="login-subtitle">Courier Logbook System</h2>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">User ID</label>
+                    <input type="text" id="userId" class="form-control" placeholder="Enter your User ID" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="Enter your password" required>
+                </div>
+                
+                <button type="submit" class="login-btn">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Logbook Page -->
+    <div id="logbookPage" class="logbook-container">
+        <div class="logbook-header">
+            <div class="container">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h1 class="logbook-title">Courier Logbook</h1>
+                    <button class="back-btn" onclick="logout()">Back to Dashboard</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <!-- Add New Log Entry Form -->
+            <div class="form-card">
+                <h3>Add New Log Entry</h3>
+                <form id="logEntryForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Pickup Date</label>
+                                <input type="date" id="pickupDate" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Status</label>
+                                <select id="status" class="form-select" required>
+                                    <option value="">Select Status</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="picked">Picked Up</option>
+                                    <option value="delivered">Delivered</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Courier Type</label>
+                                <select id="courierType" class="form-select" required>
+                                    <option value="">Select Courier Type</option>
+                                    <option value="standard">Standard</option>
+                                    <option value="express">Express</option>
+                                    <option value="overnight">Overnight</option>
+                                    <option value="same-day">Same Day</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Consignment Number</label>
+                                <input type="text" id="consignmentNumber" class="form-control" placeholder="Insert consignment number" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Cashbill Number</label>
+                                <input type="text" id="cashbillNumber" class="form-control" placeholder="To ENB/Remobile cashbill number">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Destination Partner</label>
+                                <select id="destinationPartner" class="form-select" required>
+                                    <option value="">Select Destination Partner</option>
+                                    <option value="ENB">ENB</option>
+                                    <option value="Remobile">Remobile</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label class="form-label">Person In Charge (PIC)</label>
+                                <input type="text" id="pic" class="form-control" value="Muhammad Danial Danish" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="add-btn">Add Log Entry</button>
+                </form>
+            </div>
+
+            <!-- Logbook Entries Table -->
+            <div class="entries-table">
+                <div class="table-header">
+                    Logbook Entries
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Pickup Date</th>
+                                <th>Status</th>
+                                <th>Courier Type</th>
+                                <th>Consignment No.</th>
+                                <th>Cashbill No.</th>
+                                <th>Destination</th>
+                                <th>PIC</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="entriesTableBody">
+                            <tr>
+                                <td colspan="9" class="no-entries">No entries found</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Application state
+        let logEntries = [];
+        let nextId = 1;
+        let currentUser = null;
+
+        // Load data from localStorage
+        function loadData() {
+            const savedEntries = localStorage.getItem('courierLogEntries');
+            const savedNextId = localStorage.getItem('courierLogNextId');
+            
+            if (savedEntries) {
+                logEntries = JSON.parse(savedEntries);
+            }
+            if (savedNextId) {
+                nextId = parseInt(savedNextId);
+            }
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('courierLogEntries', JSON.stringify(logEntries));
+            localStorage.setItem('courierLogNextId', nextId.toString());
+        }
+
+        // Login functionality
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const userId = document.getElementById('userId').value;
+            const password = document.getElementById('password').value;
+            
+            // Simple authentication (in real app, this would be server-side)
+            if (userId && password) {
+                currentUser = userId;
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('logbookPage').style.display = 'block';
+                loadData();
+                renderEntries();
+            } else {
+                alert('Please enter both User ID and password');
+            }
+        });
+
+        // Logout functionality
+        function logout() {
+            currentUser = null;
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('logbookPage').style.display = 'none';
+            document.getElementById('loginForm').reset();
+        }
+
+        // Add new log entry
+        document.getElementById('logEntryForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const entry = {
+                id: nextId++,
+                pickupDate: document.getElementById('pickupDate').value,
+                status: document.getElementById('status').value,
+                courierType: document.getElementById('courierType').value,
+                consignmentNumber: document.getElementById('consignmentNumber').value,
+                cashbillNumber: document.getElementById('cashbillNumber').value,
+                destinationPartner: document.getElementById('destinationPartner').value,
+                pic: document.getElementById('pic').value,
+                createdBy: currentUser,
+                createdAt: new Date().toISOString()
+            };
+            
+            logEntries.unshift(entry); // Add to beginning of array
+            saveData();
+            renderEntries();
+            e.target.reset();
+            
+            // Reset PIC field to default
+            document.getElementById('pic').value = 'Muhammad Danial Danish';
+        });
+
+        // Render entries in table
+        function renderEntries() {
+            const tbody = document.getElementById('entriesTableBody');
+            
+            if (logEntries.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="no-entries">No entries found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = logEntries.map(entry => `
+                <tr>
+                    <td>${entry.id}</td>
+                    <td>${formatDate(entry.pickupDate)}</td>
+                    <td><span class="status-badge status-${entry.status}">${capitalizeFirst(entry.status)}</span></td>
+                    <td>${capitalizeFirst(entry.courierType)}</td>
+                    <td>${entry.consignmentNumber}</td>
+                    <td>${entry.cashbillNumber || '-'}</td>
+                    <td>${entry.destinationPartner}</td>
+                    <td>${entry.pic}</td>
+                    <td>
+                        <button class="action-btn edit-btn" onclick="editEntry(${entry.id})">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deleteEntry(${entry.id})">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Delete entry
+        function deleteEntry(id) {
+            if (confirm('Are you sure you want to delete this entry?')) {
+                logEntries = logEntries.filter(entry => entry.id !== id);
+                saveData();
+                renderEntries();
+            }
+        }
+
+        // Edit entry (simplified - just shows alert for now)
+        function editEntry(id) {
+            alert('Edit functionality would be implemented here. Entry ID: ' + id);
+        }
+
+        // Utility functions
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-GB');
+        }
+
+        function capitalizeFirst(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1).replace('-', ' ');
+        }
+
+        // Set today's date as default
+        document.getElementById('pickupDate').valueAsDate = new Date();
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is already logged in (for development)
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = savedUser;
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('logbookPage').style.display = 'block';
+                loadData();
+                renderEntries();
+            }
+        });
+
+        // Save current user on login
+        function saveCurrentUser() {
+            if (currentUser) {
+                localStorage.setItem('currentUser', currentUser);
+            }
+        }
+
+        // Clear current user on logout
+        function clearCurrentUser() {
+            localStorage.removeItem('currentUser');
+        }
+    </script>
+</body>
+</html>
